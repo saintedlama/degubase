@@ -1,0 +1,7 @@
+ui/node_modules/
+ui/dist/
+data/
+degubase.yaml
+*.exe
+.git/
+.claude/

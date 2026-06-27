@@ -1,0 +1,23 @@
+[project]
+name = "degubase"
+
+[[process]]
+name            = "backend"
+cmd             = "./tmp/main.exe"
+port            = 8080
+port_env        = "DEGUBASE_PORT"
+restart_delay   = "1s"
+shutdown_timeout = "1s"
+build           = "go build -o ./tmp/main.exe ./cmd/server"
+watch           = ["."]
+watch_include   = ["*.go"]
+watch_exclude   = ["tmp", "ui", "e2e", "docs", "doc", "data", ".git", "node_modules", "test-results", "screenshots"]
+watch_debounce  = "500ms"
+
+[[process]]
+name       = "frontend"
+cmd        = "pnpm run dev"
+cwd        = "./ui"
+port       = 5173
+port_env   = "VITE_PORT"
+depends_on = ["backend"]

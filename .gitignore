@@ -1,0 +1,49 @@
+# Build output
+bin/
+*.exe
+
+# UI build artifacts (placeholder index.html is tracked)
+internal/web/dist/*
+!internal/web/dist/index.html
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+data/
+
+# Frontend
+*/node_modules/
+ui/dist/
+ui/.vite/
+
+# Playwright
+.playwright-mcp/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Agent stuff
+.claude/
+tmp/
+
+# End-to-end test
+e2e/test-results/
+e2e/playwright-report/
+e2e/e2e-data/
+
+
+
+# Coverage reports
+coverage.out
+coverage.html
+coverage.svg
+coverage/
+test-results/
+.invincible.port

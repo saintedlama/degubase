@@ -1,0 +1,5 @@
+data_dir: data
+jwt_secret: o7cRs7dmVgnZzu6/s/lZIlGHd9ldUuHOAXR6RTJR4Rw=
+disable_auth: true
+snapshots:
+  schedule: "0 2 * * *"

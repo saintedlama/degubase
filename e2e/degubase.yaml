@@ -1,0 +1,5 @@
+config_dir: .
+data_dir: e2e-data
+disable_auth: "true"
+jwt_secret: tdl+Ta1H4sys38IetGSHip1XQGzkfwOcZ/Zg6CPxyP8=
+port: "8089"

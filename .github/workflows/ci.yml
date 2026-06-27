@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ui/pnpm-lock.yaml
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Check go.mod is tidy
+        run: |
+          go mod tidy
+          if ! git diff --exit-code go.mod go.sum; then
+            echo "go.mod or go.sum is not tidy. Run 'go mod tidy' and commit."
+            exit 1
+          fi
+
+      - name: deadcode
+        run: go run golang.org/x/tools/cmd/deadcode@latest ./... 2>/dev/null || true
+
+      - name: staticcheck
+        run: go run honnef.co/go/tools/cmd/staticcheck@latest ./...
+
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+
+      - name: Go test
+        run: |
+          gotestsum \
+            --junitfile report.xml \
+            --format testname \
+            -- \
+            -race \
+            -coverprofile=coverage.out \
+            -covermode=atomic \
+            ./internal/...
+
+      - name: Install UI dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ui
+
+      - name: Build UI
+        run: pnpm run build
+        working-directory: ui
+
+      - name: Build server
+        run: go build -o bin/degubase ./cmd/server
+
+      - name: Install E2E dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: e2e
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('e2e/package.json') }}
+
+      - name: Install Playwright system deps
+        run: pnpm exec playwright install-deps chromium
+        working-directory: e2e
+
+      - name: Install Playwright browsers (from cache)
+        run: pnpm exec playwright install chromium
+        working-directory: e2e
+
+      - name: Run E2E tests
+        run: pnpm test
+        working-directory: e2e
+        env:
+          CI: "true"
+          COVERAGE: "1"
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
+
+      - name: Upload E2E test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: |
+            e2e/results.xml
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7

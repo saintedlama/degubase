@@ -1,0 +1,121 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── DeguBase Sunset Peach brand palette ─────────────────────── */
+@theme {
+  /* Named palette tokens (defined but not yet applied globally) */
+  --color-degu-base:   #FAD7A1; /* Base */
+  --color-degu-gold:   #FEEBCB; /* Gold Peach */
+  --color-degu-salmon: #E9967A; /* Text Color / salmon */
+  --color-degu-deep:   #D2691E; /* Deep Warm Terracotta — primary accent */
+  --color-degu-cream:  #FFF3E0; /* Cream Gold Highlight */
+  --color-degu-brown:  #8B4513; /* Rich Warm Brown (mascot) */
+
+  /* Surface tokens — light/dark values come from CSS vars in :root/.dark */
+  --color-surface-0:        var(--surface-0);
+  --color-surface-1:        var(--surface-1);
+  --color-surface-2:        var(--surface-2);
+  --color-surface-3:        var(--surface-3);
+
+  /* Text tokens */
+  --color-text-1:           var(--text-1);
+  --color-text-2:           var(--text-2);
+  --color-text-3:           var(--text-3);
+
+  /* Border tokens */
+  --color-border-1:         var(--border-1);
+  --color-border-2:         var(--border-2);
+
+  /* Input tokens */
+  --color-input-bg:         var(--input-bg);
+  --color-input-bg-focus:   var(--input-bg-focus);
+  --color-input-border:     var(--input-border);
+
+  /* Brand color scale used for interactive accent */
+  --color-brand-50:   #FFF3E0;
+  --color-brand-100:  #FEEBCB;
+  --color-brand-200:  #FAD7A1;
+  --color-brand-300:  #EDB876;
+  --color-brand-400:  #E9967A;
+  --color-brand-500:  #D87825;
+  --color-brand-600:  #D2691E;
+  --color-brand-700:  #B5601A;
+  --color-brand-800:  #8B4513;
+  --color-brand-900:  #5C2D0A;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb  {
+  background: var(--border-2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-500); }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: var(--border-2) transparent; }
+
+@layer base {
+  html, body, #app { height: 100%; }
+  body { -webkit-font-smoothing: antialiased; }
+
+  :root {
+    --surface-0: #f4f4f5;
+    --surface-1: #ffffff;
+    --surface-2: #fafafa;
+    --surface-3: #f5f5f8;
+    --surface-stripe: #f9f9fb;
+    --text-1: #18181b;
+    --text-2: #71717a;
+    --text-3: #a1a1aa;
+    --border-1: #e4e4e7;
+    --border-2: #d4d4d8;
+    --code-bg: #f4f4f5;
+    --code-border: #e4e4e7;
+    --code-text: #7c3aed;
+    --codeblock-bg: #1e1e2e;
+    --codeblock-text: #cdd6f4;
+    --blockquote-border: #d4d4d8;
+    --blockquote-text: #71717a;
+    --placeholder: #a1a1aa;
+    --toolbar-text: #52525b;
+    --toolbar-hover-bg: #e4e4e7;
+    --toolbar-hover-text: #18181b;
+    --input-bg: #fafafa;
+    --input-bg-focus: #ffffff;
+    --input-border: #e4e4e7;
+    --cell-text: #18181b;
+    --cell-option-bg: #ffffff;
+  }
+
+  .dark {
+    --surface-0: #1e1e1e;
+    --surface-1: #252526;
+    --surface-2: #2d2d30;
+    --surface-3: #252526;
+    --surface-stripe: #222222;
+    --text-1: #d4d4d4;
+    --text-2: #9d9d9d;
+    --text-3: #6a6a6a;
+    --border-1: #3c3c3c;
+    --border-2: #454545;
+    --code-bg: #2d2d30;
+    --code-border: #3c3c3c;
+    --code-text: #a78bfa;
+    --codeblock-bg: #1a1a1a;
+    --codeblock-text: #d4d4d4;
+    --blockquote-border: #454545;
+    --blockquote-text: #9d9d9d;
+    --placeholder: #6a6a6a;
+    --toolbar-text: #9d9d9d;
+    --toolbar-hover-bg: #3c3c3c;
+    --toolbar-hover-text: #d4d4d4;
+    --input-bg: #2d2d30;
+    --input-bg-focus: #252526;
+    --input-border: #3c3c3c;
+    --cell-text: #d4d4d4;
+    --cell-option-bg: #2d2d30;
+  }
+}

@@ -3942,7 +3942,8 @@ const docTemplate = `{
                 "created-at",
                 "updated-at",
                 "checklist",
-                "row-link"
+                "row-link",
+                "mermaid"
             ],
             "x-enum-varnames": [
                 "ColumnTypeText",
@@ -3966,7 +3967,8 @@ const docTemplate = `{
                 "ColumnTypeCreatedAt",
                 "ColumnTypeUpdatedAt",
                 "ColumnTypeChecklist",
-                "ColumnTypeRowLink"
+                "ColumnTypeRowLink",
+                "ColumnTypeMermaid"
             ]
         },
         "models.PagedReferencingRows": {
@@ -4489,6 +4491,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "mcp_enabled": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

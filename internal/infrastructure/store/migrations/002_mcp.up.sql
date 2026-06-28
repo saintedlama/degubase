@@ -1,0 +1,1 @@
+ALTER TABLE workspaces ADD COLUMN mcp_enabled INTEGER NOT NULL DEFAULT 1;

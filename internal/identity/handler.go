@@ -84,13 +84,13 @@ func (h *WorkspaceHandler) Get(w http.ResponseWriter, r *http.Request) {
 // @Security    BearerAuth
 // @Router      /workspaces/{wsCode} [put]
 func (h *WorkspaceHandler) Update(w http.ResponseWriter, r *http.Request) {
-	var body CreateWorkspaceRequest
+	var body UpdateWorkspaceRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Name == "" {
 		httplib.BadRequest(w, "name is required")
 		return
 	}
 	ws := httplib.WorkspaceFromCtx(r)
-	updated, err := h.Store.UpdateWorkspace(r.Context(), ws.ID, body.Name, body.Context)
+	updated, err := h.Store.UpdateWorkspace(r.Context(), ws.ID, body.Name, body.Context, body.MCPEnabled)
 	if err != nil {
 		httplib.InternalErr(w, err)
 		return

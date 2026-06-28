@@ -9,8 +9,9 @@ type CreateWorkspaceRequest struct {
 
 // UpdateWorkspaceRequest is the body for PUT /workspaces/{workspaceCode}.
 type UpdateWorkspaceRequest struct {
-	Name    string `json:"name"    example:"My Workspace"`
-	Context string `json:"context" example:"Project context"`
+	Name       string `json:"name"        example:"My Workspace"`
+	Context    string `json:"context"     example:"Project context"`
+	MCPEnabled *bool  `json:"mcp_enabled"`
 }
 
 // LoginRequest is the body for POST /auth/login.

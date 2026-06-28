@@ -13,7 +13,7 @@ type WorkspaceStore interface {
 	CreateWorkspace(ctx context.Context, name, wsCtx, code string) (*models.Workspace, error)
 	GetWorkspace(ctx context.Context, id int64) (*models.Workspace, error)
 	GetWorkspaceByCode(ctx context.Context, code string) (*models.Workspace, error)
-	UpdateWorkspace(ctx context.Context, id int64, name, wsCtx string) (*models.Workspace, error)
+	UpdateWorkspace(ctx context.Context, id int64, name, wsCtx string, mcpEnabled *bool) (*models.Workspace, error)
 	DeleteWorkspace(ctx context.Context, id int64) error
 }
 

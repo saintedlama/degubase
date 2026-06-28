@@ -16,6 +16,7 @@ import ScriptsReferenceTab from "../features/automation/ScriptsReferenceTab.vue"
 import SkillsView from "../features/skills/SkillsView.vue";
 import SkillsInstallTab from "../features/skills/SkillsInstallTab.vue";
 import SkillsPreviewTab from "../features/skills/SkillsPreviewTab.vue";
+import MCPView from "../features/workspace/MCPView.vue";
 import NotFoundView from "../features/workspace/NotFoundView.vue";
 import { useAuth } from "../features/identity/useAuth.js";
 
@@ -28,6 +29,10 @@ const router = createRouter({
     {
       path: "/workspaces/:workspaceCode/settings/tokens",
       component: ApiTokensView,
+    },
+    {
+      path: "/workspaces/:workspaceCode/settings/mcp",
+      component: MCPView,
     },
     {
       path: "/workspaces/:workspaceCode/settings/users",

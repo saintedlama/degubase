@@ -27,7 +27,7 @@ var _ Store = (*SQLite)(nil)
 // ── Workspaces ────────────────────────────────────────────────────────────────
 
 func (s *SQLite) ListWorkspaces(ctx context.Context) ([]models.Workspace, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT id, code, name, context, created_at FROM workspaces ORDER BY id`)
+	rows, err := s.db.QueryContext(ctx, `SELECT id, code, name, context, mcp_enabled, created_at FROM workspaces ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +36,11 @@ func (s *SQLite) ListWorkspaces(ctx context.Context) ([]models.Workspace, error)
 	for rows.Next() {
 		var w models.Workspace
 		var ca string
-		if err := rows.Scan(&w.ID, &w.Code, &w.Name, &w.Context, &ca); err != nil {
+		var mcpEnabled int
+		if err := rows.Scan(&w.ID, &w.Code, &w.Name, &w.Context, &mcpEnabled, &ca); err != nil {
 			return nil, err
 		}
+		w.MCPEnabled = mcpEnabled != 0
 		w.CreatedAt = util.ParseTime(ca)
 		out = append(out, w)
 	}
@@ -58,14 +60,16 @@ func (s *SQLite) CreateWorkspace(ctx context.Context, name, wsCtx, code string) 
 func (s *SQLite) GetWorkspace(ctx context.Context, id int64) (*models.Workspace, error) {
 	var w models.Workspace
 	var ca string
-	err := s.db.QueryRowContext(ctx, `SELECT id, code, name, context, created_at FROM workspaces WHERE id = ?`, id).
-		Scan(&w.ID, &w.Code, &w.Name, &w.Context, &ca)
+	var mcpEnabled int
+	err := s.db.QueryRowContext(ctx, `SELECT id, code, name, context, mcp_enabled, created_at FROM workspaces WHERE id = ?`, id).
+		Scan(&w.ID, &w.Code, &w.Name, &w.Context, &mcpEnabled, &ca)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
+	w.MCPEnabled = mcpEnabled != 0
 	w.CreatedAt = util.ParseTime(ca)
 	return &w, nil
 }
@@ -73,23 +77,35 @@ func (s *SQLite) GetWorkspace(ctx context.Context, id int64) (*models.Workspace,
 func (s *SQLite) GetWorkspaceByCode(ctx context.Context, code string) (*models.Workspace, error) {
 	var w models.Workspace
 	var ca string
-	err := s.db.QueryRowContext(ctx, `SELECT id, code, name, context, created_at FROM workspaces WHERE code = ?`, code).
-		Scan(&w.ID, &w.Code, &w.Name, &w.Context, &ca)
+	var mcpEnabled int
+	err := s.db.QueryRowContext(ctx, `SELECT id, code, name, context, mcp_enabled, created_at FROM workspaces WHERE code = ?`, code).
+		Scan(&w.ID, &w.Code, &w.Name, &w.Context, &mcpEnabled, &ca)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
+	w.MCPEnabled = mcpEnabled != 0
 	w.CreatedAt = util.ParseTime(ca)
 	return &w, nil
 }
 
-func (s *SQLite) UpdateWorkspace(ctx context.Context, id int64, name, wsCtx string) (*models.Workspace, error) {
-	// Code is immutable after creation; only name and context are updated.
-	_, err := s.db.ExecContext(ctx, `UPDATE workspaces SET name = ?, context = ? WHERE id = ?`, name, wsCtx, id)
-	if err != nil {
-		return nil, err
+func (s *SQLite) UpdateWorkspace(ctx context.Context, id int64, name, wsCtx string, mcpEnabled *bool) (*models.Workspace, error) {
+	if mcpEnabled != nil {
+		enabled := 0
+		if *mcpEnabled {
+			enabled = 1
+		}
+		_, err := s.db.ExecContext(ctx, `UPDATE workspaces SET name = ?, context = ?, mcp_enabled = ? WHERE id = ?`, name, wsCtx, enabled, id)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		_, err := s.db.ExecContext(ctx, `UPDATE workspaces SET name = ?, context = ? WHERE id = ?`, name, wsCtx, id)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return s.GetWorkspace(ctx, id)
 }

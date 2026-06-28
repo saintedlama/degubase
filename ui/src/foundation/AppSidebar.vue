@@ -107,6 +107,18 @@
         <!-- Bottom nav -->
         <div class="border-t border-white/6 px-1.5 py-2 flex flex-col gap-0.5">
             <RouterLink
+                :to="`/workspaces/${props.workspaceCode}/settings/mcp`"
+                class="flex items-center gap-2 px-2 py-1.5 no-underline text-xs rounded-md transition-colors"
+                :class="
+                    isMCP
+                        ? 'text-brand-400 bg-brand-600/14'
+                        : 'text-slate-500 hover:text-slate-300 hover:bg-white/6'
+                "
+            >
+                <RiRobot2Line size="13" />
+                MCP
+            </RouterLink>
+            <RouterLink
                 :to="`/workspaces/${props.workspaceCode}/automations/scripts`"
                 class="flex items-center gap-2 px-2 py-1.5 no-underline text-xs rounded-md transition-colors"
                 :class="
@@ -183,6 +195,7 @@ import {
     RiGroupLine,
     RiCodeSSlashLine,
     RiCodeBoxLine,
+    RiRobot2Line,
 } from "@remixicon/vue";
 
 const props = defineProps({
@@ -201,6 +214,9 @@ const isTokens = computed(
 );
 const isUsers = computed(
     () => route.path === `/workspaces/${props.workspaceCode}/settings/users`,
+);
+const isMCP = computed(
+    () => route.path === `/workspaces/${props.workspaceCode}/settings/mcp`,
 );
 const isScripts = computed(() =>
     route.path.startsWith(

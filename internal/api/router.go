@@ -17,6 +17,7 @@ import (
 	httplib "github.com/saintedlama/degubase/internal/infrastructure/http"
 	"github.com/saintedlama/degubase/internal/infrastructure/storage"
 	"github.com/saintedlama/degubase/internal/jobs"
+	"github.com/saintedlama/degubase/internal/mcp"
 	"github.com/saintedlama/degubase/internal/models"
 	"github.com/saintedlama/degubase/internal/records"
 	"github.com/saintedlama/degubase/internal/schema"
@@ -273,6 +274,12 @@ func NewRouter(db *sql.DB, fileStore storage.Storage, uploadCfg records.UploadCo
 				r.Delete("/{skillID}", skl.Delete)
 				r.Get("/{skillID}/skill.md", skl.ServeSkillMd)
 				r.Get("/{skillID}/context", skl.ServeContext)
+			})
+
+			mcpH := mcp.NewHandler(schem, recs, rowSvc, auto)
+			r.Route("/mcp", func(r chi.Router) {
+				r.Get("/sse", mcpH.SSE)
+				r.Post("/message", mcpH.Message)
 			})
 		})
 	})

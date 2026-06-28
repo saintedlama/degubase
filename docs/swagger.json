@@ -3935,7 +3935,8 @@
                 "created-at",
                 "updated-at",
                 "checklist",
-                "row-link"
+                "row-link",
+                "mermaid"
             ],
             "x-enum-varnames": [
                 "ColumnTypeText",
@@ -3959,7 +3960,8 @@
                 "ColumnTypeCreatedAt",
                 "ColumnTypeUpdatedAt",
                 "ColumnTypeChecklist",
-                "ColumnTypeRowLink"
+                "ColumnTypeRowLink",
+                "ColumnTypeMermaid"
             ]
         },
         "models.PagedReferencingRows": {
@@ -4482,6 +4484,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "mcp_enabled": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

@@ -3,11 +3,12 @@ package models
 import "time"
 
 type Workspace struct {
-	ID        int64     `json:"id"`
-	Code      string    `json:"code"`
-	Name      string    `json:"name"`
-	Context   string    `json:"context"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         int64     `json:"id"`
+	Code       string    `json:"code"`
+	Name       string    `json:"name"`
+	Context    string    `json:"context"`
+	MCPEnabled bool      `json:"mcp_enabled"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 type User struct {

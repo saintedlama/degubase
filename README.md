@@ -29,6 +29,48 @@ Degubase is **not** built for massive scale, enterprise authorization matrices, 
 
 ## Installation & Running
 
+### Docker (recommended)
+
+Prebuilt images are published to [ghcr.io](https://github.com/saintedlama/degubase/pkgs/container/degubase):
+
+```bash
+docker run -d \
+  --name degubase \
+  -p 8080:8080 \
+  -v degubase-data:/data \
+  -v degubase-config:/config \
+  -e DEGUBASE_HOST=0.0.0.0 \
+  ghcr.io/saintedlama/degubase:latest
+```
+
+Opens on `http://localhost:8080`. Data persists in named volumes.
+
+#### With Docker Compose
+
+Create a `compose.yml`:
+
+```yaml
+services:
+  degubase:
+    image: ghcr.io/saintedlama/degubase:latest
+    ports:
+      - "8080:8080"
+    environment:
+      DEGUBASE_HOST: "0.0.0.0"
+    volumes:
+      - data:/data
+      - config:/config
+    restart: unless-stopped
+
+volumes:
+  data:
+  config:
+```
+
+```bash
+docker compose up -d
+```
+
 ### Quickstart (Go)
 
 ```bash
@@ -37,15 +79,7 @@ cd degubase
 go run ./cmd/server
 ```
 
-Opens on `http://localhost:8080`. A SQLite database (`degubase.db`) is created automatically on first run.
-
-### Docker Compose
-
-```bash
-git clone https://github.com/saintedlama/degubase.git
-cd degubase
-docker compose up -d
-```
+A SQLite database (`degubase.db`) is created automatically on first run.
 
 ### Configuration
 
@@ -232,6 +266,16 @@ curl -X POST localhost:8080/api/workspaces/1/tables/1/rows \
 ```
 
 Full API docs at `http://localhost:8080/api/openapi.json` when the server is running.
+
+## MCP Server
+
+Every workspace can expose its schema and data as an MCP (Model Context Protocol) server, letting AI agents discover tables, query rows, and run CRUD operations through a standard JSON-RPC interface over Server-Sent Events.
+
+**Enable it** from the workspace's MCP tab in the UI (toggle the switch). The page shows ready-to-paste configuration for Claude, Zed, and other MCP clients.
+
+**Authentication:** MCP requests are authenticated with workspace API tokens. Create a token from workspace settings and pass it as a `Bearer` header.
+
+**Available tools:** `get_workspace`, `list_tables`, `create_table`, `update_table`, `delete_table`, `list_columns`, `create_column`, `update_column`, `delete_column`, `query_rows`, `get_row`, `create_row`, `patch_row`, `delete_row`, `bulk_patch_rows`, `list_referencing_rows`, `get_row_history`, `annotate_row`, `list_scripts`, `create_script`, `update_script`, `delete_script`, `list_script_executions`.
 
 ## Tech stack
 

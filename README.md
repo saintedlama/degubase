@@ -1,5 +1,7 @@
 # Degubase
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 **The database UI for the masses.** A personal database that anyone can spin up in seconds — no accounts, no limits, no complexity. Just you and your data.
 
 ## Why?
@@ -194,7 +196,7 @@ cd degubase
 
 ### Prerequisites
 
-- [Go](https://go.dev) 1.25+
+- [Go](https://go.dev) 1.27+
 - [pnpm](https://pnpm.io) (frontend dependencies)
 - [air](https://github.com/air-verse/air) (backend live reload)
 
@@ -284,3 +286,15 @@ Every workspace can expose its schema and data as an MCP (Model Context Protocol
 | Backend  | Go     | Fast, single binary, excellent HTTP tooling   |
 | Database | SQLite | Zero-setup, file-based, perfect for local use |
 | Frontend | Vue 3  | Reactive, lightweight, composable             |
+
+## Contributing & Community
+
+Contributions are welcome! Please check out [CONTRIBUTING.md](CONTRIBUTING.md) for local environment setup, testing guidelines, and workflow instructions.
+
+This project is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+
+For security concerns, please refer to our [Security Policy](SECURITY.md).
+
+## License
+
+Degubase is open source software licensed under the [GNU General Public License v3.0](LICENSE).

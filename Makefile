@@ -14,9 +14,9 @@ lint:
 	go mod tidy
 	@git diff --exit-code go.mod go.sum || (echo "go.mod or go.sum is not tidy. Run go mod tidy and commit."; exit 1)
 	@echo "── staticcheck ──"
-	go run honnef.co/go/tools/cmd/staticcheck@latest ./...
+	go run honnef.co/go/tools/cmd/staticcheck@v0.8.1 ./...
 	@echo "── deadcode ──"
-	go run golang.org/x/tools/cmd/deadcode@latest ./... 2>/dev/null || true
+	go run golang.org/x/tools/cmd/deadcode@v0.50.0 ./... 2>/dev/null || true
 	@echo "All checks passed."
 
 ## Regenerate OpenAPI spec from handler annotations
@@ -69,7 +69,7 @@ dev:
 test:
 	go test ./... -count=1
 
-## Generate treemap coverage report (install: go install github.com/nikolaydubina/go-cover-treemap@latest)
+## Generate treemap coverage report (install: go install github.com/nikolaydubina/go-cover-treemap@v1.5.1)
 coverage:
 	go test ./... -count=1 -coverprofile=coverage.out -covermode=atomic -coverpkg=./...
 	go tool cover -func=coverage.out | tail -1

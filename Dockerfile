@@ -3,10 +3,10 @@ WORKDIR /app/ui
 RUN corepack enable
 COPY ui/package.json ui/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
-COPY ui/ .
+COPY ui/ ./
 RUN pnpm build
 
-FROM golang:1.25-alpine AS builder
+FROM golang:1.27-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download

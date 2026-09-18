@@ -69,6 +69,7 @@ import { workspaceAvatarStyle } from '../views/palettes.js'
 import NewTableDialog from './NewTableDialog.vue'
 import NotFoundView from './NotFoundView.vue'
 import { resolveTableIcon } from './tableIcons.js'
+import { instantiateTemplate } from './templates.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -112,15 +113,13 @@ async function createTable({ name, context, icon, code, template }) {
   try {
     const workspaceCode = route.params.workspaceCode
     const newTable = await api.createTable(workspaceCode, { name, context, icon, code })
-    if (template?.columns?.length) {
-      for (const colDef of template.columns) {
-        await api.createColumn(workspaceCode, newTable.code, colDef)
-      }
+    let targetView = newTable.views?.find(v => v.id === newTable.default_view_id) ?? null
+    if (template) {
+      targetView = (await instantiateTemplate(api, workspaceCode, newTable, template)) ?? targetView
     }
     reloadSidebar?.()
-    const defaultView = newTable.views?.find(v => v.id === newTable.default_view_id)
-    if (defaultView) {
-      router.push(`/workspaces/${workspaceCode}/tables/${newTable.code}/views/${defaultView.code}`)
+    if (targetView) {
+      router.push(`/workspaces/${workspaceCode}/tables/${newTable.code}/views/${targetView.code}`)
     }
   } finally {
     creating.value = false

@@ -185,6 +185,7 @@ import { api } from "../api/client.js";
 import { useAuth } from "../features/identity/useAuth.js";
 import NewTableDialog from "../features/workspace/NewTableDialog.vue";
 import { resolveTableIcon } from "../features/workspace/tableIcons.js";
+import { instantiateTemplate } from "../features/workspace/templates.js";
 import {
     RiArrowLeftSLine,
     RiTableView,
@@ -258,31 +259,26 @@ watch(
     { immediate: true },
 );
 
-async function createTable({ name, context, code, template }) {
+async function createTable({ name, context, icon, code, template }) {
     showCreateDialog.value = false;
     creating.value = true;
     try {
         const newTable = await api.createTable(props.workspaceCode, {
             name,
             context,
+            icon,
             code,
         });
-        if (template?.columns?.length) {
-            for (const colDef of template.columns) {
-                await api.createColumn(
-                    props.workspaceCode,
-                    newTable.code,
-                    colDef,
-                );
-            }
+        let targetView = newTable.views?.find(
+            (v) => v.id === newTable.default_view_id,
+        ) ?? null;
+        if (template) {
+            targetView = (await instantiateTemplate(api, props.workspaceCode, newTable, template)) ?? targetView;
         }
         await load(props.workspaceCode);
-        const defaultView = newTable.views?.find(
-            (v) => v.id === newTable.default_view_id,
-        );
-        if (defaultView) {
+        if (targetView) {
             router.push(
-                `/workspaces/${props.workspaceCode}/tables/${newTable.code}/views/${defaultView.code}`,
+                `/workspaces/${props.workspaceCode}/tables/${newTable.code}/views/${targetView.code}`,
             );
         }
     } finally {

@@ -1,60 +1,75 @@
 # Degubase
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+<p align="center">
+  <img src="ui/public/assets/logo.svg" width="80" height="80" alt="Degubase Logo" />
+</p>
 
-**The database UI for the masses.** A personal database that anyone can spin up in seconds — no accounts, no limits, no complexity. Just you and your data.
+<p align="center">
+  <strong>The database UI for personal tooling, side projects, and small teams.</strong><br />
+  A single binary that spins up in seconds — no accounts, no paywalls, no external database servers.<br />
+  Just you, your data, and an instant Model Context Protocol (MCP) server for your AI agents.
+</p>
 
-## Why?
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a>
+  <a href="https://github.com/saintedlama/degubase/releases"><img src="https://img.shields.io/github/v/release/saintedlama/degubase?color=emerald" alt="Release" /></a>
+  <a href="https://github.com/saintedlama/degubase/pkgs/container/degubase"><img src="https://img.shields.io/badge/docker-ghcr.io-blue?logo=docker" alt="Docker Container" /></a>
+  <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-Compatible-purple" alt="Model Context Protocol" /></a>
+</p>
 
-We all have data to wrangle. Spreadsheets feel like overkill, databases feel like underkill, and every hosted tool wants your email, your credit card, and your soul. Degubase is the anti-platform: a single binary that gives you a full-featured database with a clean web UI, sitting right on your machine. Own your data. Share it with your small team. Write scripts that react to changes. No lock-in, no limits.
+<p align="center">
+  <a href="#-quickstart">⚡ Quickstart</a> •
+  <a href="#-key-features">✨ Key Features</a> •
+  <a href="#-five-interactive-views">📊 Views</a> •
+  <a href="#-native-mcp-server-for-ai-agents">🤖 MCP for AI</a> •
+  <a href="#-ready-made-templates">📦 Templates</a> •
+  <a href="#-showcase">🖼️ Showcase</a> •
+  <a href="#-configuration--api">⚙️ Config & API</a>
+</p>
 
-Degubase is **not** built for massive scale, enterprise authorization matrices, or real-time collaboration à la Google Docs. It's built for hackers, small teams, side projects, and personal tooling — a database that's yours, end to end.
+---
 
-## Core Features
+![Degubase Home — Workspaces](screenshots/01-home.png)
 
-- **Workspaces** — Isolated containers for your projects. Give each one a name and semantic context so both humans and agents understand what it's for.
-- **Tables with typed columns** — 20+ column types: text, long-text, markdown, email, URL, number, currency, percent, rating, date, datetime, checkbox, single/multi-select, checklist, file, image, emoji, symbol, row-link, and auto-timestamps.
-- **Tabular view** — Spreadsheet-style grid with inline cell editing, column controls, and row CRUD. The default view every table gets.
-- **Kanban view** — Card-board grouped by a single-select column. Drag, drop, and manage workflows visually.
-- **Card view** — Gallery layout with configurable fields, ideal for browsing image-heavy or detail-light records.
-- **Matrix view** — Cross-reference two columns as X/Y axes, perfect for comparison grids and relationship mapping.
-- **Linked records** — Connect rows across tables *or within the same table*. Reference a task's assignee, a project's owner, an invoice's client — or create parent/child hierarchies where rows link to other rows in the same table (e.g. task dependencies). Click any link to jump straight to the related record. The backend detects circular references and blocks deletion of rows that are still referenced. Great for relational data without the SQL.
-- **Lua scripting** — Attach Lua scripts to tables that fire on row create/update/delete events. Transform data, enforce rules, or trigger side effects — all scriptable.
-- **CSV import/export** — Bring data in, take data out. Filter and sort before exporting.
-- **File & image uploads** — Attach files and images to records. Automatic thumbnail generation for images.
-- **Real-time updates** — Server-sent events (SSE) stream live changes so your UI stays in sync.
-- **User authentication** — JWT-based login with bcrypt-hashed passwords. Optional — disable auth entirely for local use.
-- **Workspace API tokens** — Scoped bearer tokens for scripted access, agent integration, or sharing with a teammate.
-- **Row history** — Every change tracked with revision IDs. Annotations supported.
-- **OpenAPI spec** — Auto-generated OpenAPI 3.0 spec at `/api/openapi.json`. Import into Postman, Hoppscotch, or any OpenAPI-compatible tool.
-- **Single binary** — Go backend embeds the Vue frontend. Ship one file, run it, you're done.
+---
 
-## Installation & Running
+## Why Degubase?
 
-### Docker (recommended)
+We all have data to wrangle. Spreadsheets often feel too loose, full-blown database engines require setup and hosting, and SaaS platforms demand your email, credit card, and privacy.
 
-Prebuilt images are published to [ghcr.io](https://github.com/saintedlama/degubase/pkgs/container/degubase):
+**Degubase is the anti-platform:** a single compiled binary that gives you a complete relational database with a clean, responsive web UI sitting directly on your machine. 
+
+- **100% Local & Self-Contained** — Backed by SQLite. Everything lives in one file or data directory. Zero Redis, Postgres, or container sprawl.
+- **Built for Humans & AI Agents** — Human-friendly web views with inline editing, plus an instant Model Context Protocol (MCP) server so Claude, Cursor, or your custom agents can read and write data reliably.
+- **Your Data, Your Rules** — Attach Lua scripts that react to row changes, link records across tables, and import/export CSV whenever you want.
+
+---
+
+## ⚡ Quickstart
+
+### Option 1: Docker (Fastest)
+
+Run Degubase with a single command. Data persists automatically in a named volume:
 
 ```bash
 docker run -d \
   --name degubase \
   -p 8080:8080 \
   -v degubase-data:/data \
-  -v degubase-config:/config \
   -e DEGUBASE_HOST=0.0.0.0 \
   ghcr.io/saintedlama/degubase:latest
 ```
 
-Opens on `http://localhost:8080`. Data persists in named volumes.
+Open **`http://localhost:8080`** in your browser.
 
-#### With Docker Compose
-
-Create a `compose.yml`:
+<details>
+<summary><b>Using Docker Compose? Click for <code>compose.yml</code></b></summary>
 
 ```yaml
 services:
   degubase:
     image: ghcr.io/saintedlama/degubase:latest
+    container_name: degubase
     ports:
       - "8080:8080"
     environment:
@@ -69,11 +84,15 @@ volumes:
   config:
 ```
 
+Run with:
 ```bash
 docker compose up -d
 ```
+</details>
 
-### Quickstart (Go)
+---
+
+### Option 2: Run from Source (Go)
 
 ```bash
 git clone https://github.com/saintedlama/degubase.git
@@ -81,220 +100,210 @@ cd degubase
 go run ./cmd/server
 ```
 
-A SQLite database (`degubase.db`) is created automatically on first run.
+A SQLite database (`degubase.db`) is automatically initialized on first run.
 
-### Configuration
-
-Configure via `degubase.yaml` in the working directory, or environment variables:
-
-| YAML key       | Env variable        | Default   | Description                    |
-|---------------|---------------------|-----------|--------------------------------|
-| `port`        | `DEGUBASE_PORT`     | `8080`    | HTTP listen port               |
-| `data_dir`    | `DEGUBASE_DATA_DIR` | `data`    | Data & SQLite storage path     |
-| `jwt_secret`  | `DEGUBASE_JWT_SECRET`| *(auto)* | Secret for signing JWT tokens  |
-| `disable_auth`| `DEGUBASE_DISABLE_AUTH` | `false` | Skip login, auto-create admin  |
-
-## Showcase
-
-![Home — six workspace cards](screenshots/01-home.png)
-*Six demo workspaces: Bookmarks, Task Tracker, Bug Tracker, CRM, Recipe Book, Content Calendar.*
+> 💡 **Tip:** Want to explore Degubase with sample data preloaded? Run `make seed-demo` (or `go run ./cmd/seed_demo`) to instantly populate demo workspaces for Task Tracking, CRM, Bug Tracking, Content Planning, and Recipes!
 
 ---
 
-![Bookmarks gallery — links as cards](screenshots/02-bookmarks-gallery.png)
-*Card view with configurable fields — title, URL, description, tags, status, and rating.*
+## ✨ Key Features
+
+- **Single Binary, Zero Dependencies** — Go backend embeds the complete Vue 3 frontend bundle. Run one executable and you're up.
+- **20+ Rich Column Types** — Designed for real-world information:
+  `text`, `long-text`, `markdown`, `email`, `url`, `number`, `currency`, `percent`, `rating`, `date`, `datetime`, `checkbox`, `single-select`, `multi-select`, `checklist`, `file`, `image` (with auto-thumbnails), `emoji`, `symbol`, `row-link`, `created-at`, and `updated-at`.
+- **Linked Records & Hierarchies** — Connect rows across tables (*assignee ➔ user*, *invoice ➔ client*) or create parent/child trees within the same table (*subtask ➔ task*, *nested pages*). Graph traversal API included with circular reference protection.
+- **Event-Driven Lua Automations** — Write lightweight Lua scripts triggered on row `create`, `update`, or `delete`. Compute derived fields, validate inputs, enforce business logic, or make outbound HTTP requests.
+- **Real-Time UI Sync (SSE)** — Server-Sent Events stream database changes live. Boards, grids, and timelines refresh automatically across open browser tabs.
+- **Row History & Audit Trail** — Every edit is tracked with revision IDs and optional user annotations.
+- **Workspace Security & API Tokens** — Optional JWT login, bcrypt password hashing, and scoped SHA-256 bearer tokens for integrations. Or set `disable_auth: true` for frictionless single-user local use.
 
 ---
 
-![Task Tracker board — tasks kanban](screenshots/03-task-tracker-board.png)
-*Kanban grouped by status with 18 tasks across multiple projects.*
+## 📊 Five Interactive Views
+
+Switch perspectives on the same table with one click:
+
+| View | Best For | Features |
+|---|---|---|
+| **Tabular** | Data entry & spreadsheet workflows | Inline cell editing, column resizing, bulk operations, row context menus. |
+| **Kanban** | Workflow & pipeline tracking | Group by any single-select column, drag-and-drop card movement. |
+| **Timeline** | Editorial calendars & project roadmaps | Swimlanes grouped by channel/owner, date-range scheduling, drag to shift dates. |
+| **Matrix** | Risk registers & priority grids | 2D cross-referencing over X and Y select axes (e.g. Likelihood vs Impact). |
+| **Card / Gallery** | Portfolios, assets & recipe collections | Visual card layouts, image cover previews, configurable visible fields. |
 
 ---
 
-![Bug Tracker grid — bugs with severity and status](screenshots/04-bug-tracker-grid.png)
-*Tabular view with 15 bugs — severity, status, reporter, assignee, and markdown steps.*
+## 🤖 Native MCP Server for AI Agents
+
+Every Degubase workspace exposes a native **Model Context Protocol (MCP)** server over Server-Sent Events (SSE). This turns Degubase into a persistent, structured memory and tooling layer for AI assistants like Claude Desktop, Cursor, and custom agents.
+
+### Quick Setup (Claude Desktop)
+
+1. In Degubase, open your workspace settings, enable the **MCP Server** toggle, and generate an **API Token**.
+2. Add the server to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "degubase": {
+      "url": "http://localhost:8080/api/workspaces/<WORKSPACE_CODE>/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer <YOUR_WORKSPACE_TOKEN>"
+      }
+    }
+  }
+}
+```
+
+### Why Agents Love Degubase:
+- **Semantic Context Awareness**: Workspaces and tables carry descriptive `context` fields that explain schema semantics to LLMs before they write a query.
+- **20+ Dedicated Tools**: AI agents can query rows, filter data, inspect linked relations, create tables, update columns, inspect row histories, and run automations programmatically.
+- **OpenAPI 3.0 Documentation**: Auto-generated live specification at `/api/openapi.json` for custom LLM tooling and API clients.
 
 ---
 
-![CRM pipeline — contacts kanban by stage](screenshots/05-crm-pipeline.png)
-*Sales pipeline from Lead to Won/Lost, with deal values and company tags.*
+## 📦 Ready-Made Templates
+
+Degubase includes 16 pre-configured templates that spin up instantly with tailored column schemas and preset default views:
+
+- 🚀 **Product & Engineering**:
+  - *Product Roadmap* (Now/Next/Later with Kanban & Timeline)
+  - *Bug Tracker* (Markdown reproduction steps, screenshot uploads, triage board & severity matrix)
+  - *Releases & Changelog* (Semantic version tracking, breaking changes, timeline view)
+  - *Incident Log & Post-Mortem* (Outage timestamps, root causes, checklist action items)
+  - *Goals & Bets* (Quarterly bets, key progress metrics, and progress percentages)
+  - *Feature Requests* (User feedback, pain points, demand matrix)
+- 💼 **Sales & Operations**:
+  - *CRM & Contacts* (Contact records, interaction dates, status tracking)
+  - *Sales Pipeline* (Deal stages, currency values, target close dates)
+  - *Client Projects & Billing* (Client deliverables, contract values, invoice status)
+  - *Launch Checklist* (Cross-functional go-live sanity checks)
+- 🧠 **Strategy & Personal**:
+  - *Risk Register* (Pre-built Likelihood × Impact 2D Matrix view)
+  - *OKRs (Objectives & Key Results)* (Measurable targets and initiatives)
+  - *Decision Journal* (Context, alternatives considered, expected vs. actual outcomes)
+  - *Recipe Book*, *Reading List*, *Subscriptions & Renewals*
+- 🤖 **Coding Agents**:
+  - *Agent Orchestration*, *Evidence Trail*, *Task Memory Graph*
 
 ---
 
-![Recipe Book gallery — recipes as cards](screenshots/06-recipe-book-gallery.png)
-*Card gallery with cover images, cuisine, difficulty, prep time, rating, and tags.*
+## 🖼️ Showcase
+
+### Workflows & Views
+
+| Kanban Board View | Timeline Schedule View |
+|---|---|
+| ![Task Tracker board — tasks kanban](screenshots/03-task-tracker-board.png) | ![Content Calendar timeline](screenshots/07-content-calendar-timeline.png) |
+| *Drag-and-drop workflow tracking grouped by column.* | *Visual swimlane scheduling across date ranges.* |
+
+| Tabular Spreadsheet Grid | Card / Gallery View |
+|---|---|
+| ![Bug Tracker grid](screenshots/04-bug-tracker-grid.png) | ![Recipe Book gallery](screenshots/06-recipe-book-gallery.png) |
+| *Fast spreadsheet editing with rich types and filters.* | *Cover images, ratings, badges, and quick glance fields.* |
+
+### Pipelines & Details
+
+| Sales & Deal Pipeline | Detailed Record View |
+|---|---|
+| ![CRM pipeline](screenshots/05-crm-pipeline.png) | ![Row detail view](screenshots/08-row-detail.png) |
+| *Deal values, company tags, and stage pipelines.* | *Markdown rendering, rich attachments, and row actions.* |
 
 ---
 
-![Content Calendar timeline — posts by publish date](screenshots/07-content-calendar-timeline.png)
-*Timeline view with swimlanes grouped by channel (Blog, Twitter, LinkedIn, Newsletter, YouTube).*
+## ⚙️ Configuration & API
 
----
+<details>
+<summary><b>🔧 Configuration Options (YAML & Environment Variables)</b></summary>
+<br />
 
-![Row detail — bug with markdown steps](screenshots/08-row-detail.png)
-*Full record view with markdown rendering, column data, and row actions.*
+Configure via `degubase.yaml` in your working directory or standard environment variables:
 
-#### Data types that work for you
+| YAML key | Environment variable | Default | Description |
+|---|---|---|---|
+| `port` | `DEGUBASE_PORT` | `8080` | HTTP listen port |
+| `host` | `DEGUBASE_HOST` | `127.0.0.1` | Network interface to bind (`0.0.0.0` for containers/LAN) |
+| `data_dir` | `DEGUBASE_DATA_DIR` | `data` | Directory for SQLite database and uploaded files |
+| `jwt_secret` | `DEGUBASE_JWT_SECRET` | *(auto)* | Secret used to sign authentication JWT tokens |
+| `disable_auth` | `DEGUBASE_DISABLE_AUTH` | `false` | Disables login requirement (auto-authenticates as admin) |
+| `automation.http.allowed_hosts` | `DEGUBASE_AUTOMATION_HTTP_ALLOWED_HOSTS` | `[]` | Hosts or `host:port` allowed in Lua `http.get`/`post` bypassing SSRF checks |
 
-20+ column types so your schema matches your mental model: `text`, `long-text`, `markdown`, `email`, `url`, `number`, `currency`, `percent`, `rating`, `date`, `datetime`, `checkbox`, `single-select`, `multi-select`, `checklist`, `file`, `image`, `emoji`, `symbol`, `row-link`, `created-at`, `updated-at`.
+</details>
 
-#### Multiple views on the same data
+<details>
+<summary><b>🔌 REST API Quick Reference</b></summary>
+<br />
 
-Four view types to match how you think about your data:
-
-- **Tabular** — Fast spreadsheet-style editing with click-to-edit cells, column controls, and row context menus. Every table gets one by default.
-- **Kanban** — Card-board grouped by any single-select column. Drag cards between columns to update the grouping field.
-- **Card** — Gallery layout with configurable fields. Choose which columns to show, toggle labels, set truncation. Ideal for browsing image-heavy records or lightweight directories.
-- **Matrix** — Cross-reference two columns as X/Y axes. Map relationships, build comparison grids, or sketch out a pivot-style view.
-
-#### Linked records
-
-The `row-link` column type connects rows across tables *or within the same table*. Reference a task's assignee, a project's owner, an invoice's client. Or create **parent/child hierarchies** — link a task to its parent task, a page to its parent page — within the same table. Click any link to jump straight to the related record. The backend graph API lets agents traverse these connections programmatically with cycle-safe BFS traversal, configurable depth, and ghost nodes for orphaned references.
-
-#### Lua scripting engine
-
-Attach Lua scripts to tables that trigger on `create`, `update`, or `delete` events. Scripts have access to the current row and can read/write other rows. Perfect for validation rules, derived fields, cross-table cascades, webhooks, and workflow automation. Each workspace gets its own set of environment variables (with secret support) so scripts can keep API keys and config out of the code.
-
-#### CSV import/export
-
-Bring in legacy data or share with tools that speak CSV. Filter and sort on export so you only get what you need.
-
-#### File attachments & images
-
-Upload files and images directly into record cells. Thumbnails are auto-generated for images. Files are served straight from the DB with proper MIME types and cache headers.
-
-#### Real-time streaming
-
-Server-sent events push live changes to every connected client. Watch your Kanban board update as teammates move cards without refreshing a thing.
-
-#### Identity & access
-
-- **Password auth** — JWT-based login with bcrypt-hashed passwords. Toggle `disable_auth: true` for single-user local setups.
-- **Workspace tokens** — Scoped bearer tokens for API access. Create one per integration or teammate. Tokens are SHA-256 hashed and never stored in plaintext.
-- **OpenAPI spec** — Every endpoint documented. Import `/api/openapi.json` into Postman, Hoppscotch, or any OpenAPI tool. Perfect for LLM agents that need to discover the API at runtime.
-
-#### Row history
-
-Every edit is tracked with a revision ID. View change history per row. Add annotations to capture context about why a change was made.
-
-#### Designed for agents
-
-Workspaces and tables carry a `context` field — a free-text semantic description that lets LLMs and automation tools understand your schema before they touch a single row. Pair that with the OpenAPI spec and workspace tokens, and Degubase doubles as a structured memory layer for AI agents.
-
-#### Single binary, zero dependencies
-
-One Go binary embeds the entire Vue frontend. Download it, run it, and you have a full database application. SQLite means no database server to install. Everything lives in a single file or one data directory.
-
-## Developing
-
-Degubase is a Go backend with a Vue 3 frontend.
+Every table and record is accessible via REST with standard JSON payloads:
 
 ```bash
-git clone https://github.com/saintedlama/degubase.git
-cd degubase
+# 1. Create a workspace
+curl -X POST http://localhost:8080/api/workspaces \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Product Ops","context":"Product development and bug tracking"}'
+
+# 2. Create a table
+curl -X POST http://localhost:8080/api/workspaces/PRODUCT_OPS/tables \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Tasks","context":"Sprint engineering tasks"}'
+
+# 3. Add a column
+curl -X POST http://localhost:8080/api/workspaces/PRODUCT_OPS/tables/TASKS/columns \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Status","type":"single-select","options":{"choices":[["Todo","#808080"],["Done","#22c55e"]]}}'
+
+# 4. Insert a record
+curl -X POST http://localhost:8080/api/workspaces/PRODUCT_OPS/tables/TASKS/rows \
+  -H "Content-Type: application/json" \
+  -d '{"data":{"title":"Implement OAuth","Status":"Todo"}}'
 ```
+
+Full interactive documentation is available at `http://localhost:8080/api/openapi.json`.
+</details>
+
+<details>
+<summary><b>🛠️ Local Development & Makefile Guide</b></summary>
+<br />
+
+Degubase is built with **Go** and **Vue 3** (Vite + Tailwind CSS).
 
 ### Prerequisites
+- [Go](https://go.dev) 1.24+
+- [pnpm](https://pnpm.io)
 
-- [Go](https://go.dev) 1.27+
-- [pnpm](https://pnpm.io) (frontend dependencies)
-- [air](https://github.com/air-verse/air) (backend live reload)
-
-### Start development servers
-
+### Common Commands
 ```bash
-make dev
+make dev           # Starts Go backend and Vite UI with hot-module reload
+make test          # Runs all Go unit and integration tests
+make seed-demo     # Populates local DB with sample workspaces & records
+make build         # Builds production binary with embedded UI assets
+make lint          # Runs gofmt, go vet, staticcheck, and deadcode checks
 ```
 
-This starts the Go backend with live reload on `:8080` and the Vue dev server with HMR, proxying API calls to the backend.
+</details>
 
-### Run tests
+---
 
-```bash
-make test          # Go unit + integration tests
-make e2e           # Playwright end-to-end smoke tests
-make e2e-ui        # Playwright interactive UI for e2e tests
-```
+## Tech Stack
 
-### Other targets
+| Layer | Technology | Rationale |
+|---|---|---|
+| **Backend** | Go | High-performance, single compiled binary, minimal memory footprint (~25 MB). |
+| **Database** | SQLite (Pure Go driver) | Zero server configuration, file-based, dependable ACID storage. |
+| **Frontend** | Vue 3 + Tailwind CSS | Fast reactive UI, smooth drag-and-drop, compact bundle size. |
+| **Scripting** | GopherLua | Embedded sandbox for custom triggers without external language runtimes. |
+| **Agent Interface** | Model Context Protocol (MCP) | Direct, standardized AI agent integration over Server-Sent Events. |
 
-```bash
-make build         # Production binary + Vue bundle
-make seed          # Populate database with synthetic data for UI development
-make coverage      # Test coverage report with treemap SVG
-make db-reset      # Wipe and recreate local database
-make clean         # Remove build artifacts and local database
-```
-
-### Project layout
-
-```
-cmd/server/       Application entrypoint
-internal/
-  api/            HTTP router, auth middleware
-  automation/     Lua scripting engine, script CRUD, execution runner
-  identity/       Users, auth, workspace tokens
-  infrastructure/ Shared plumbing (events, storage, HTTP helpers)
-  models/         Shared data types
-  records/        Row CRUD, CSV, files, graph, SSE events
-  schema/         Tables, columns, views
-ui/               Vue 3 frontend (Vite, Vue Router)
-e2e/              Playwright end-to-end tests
-docs/             OpenAPI spec (auto-generated)
-```
-
-### API quick reference
-
-```bash
-# Create a workspace
-curl -X POST localhost:8080/api/workspaces \
-  -H "Content-Type: application/json" \
-  -d '{"name":"my-project","context":"Project tracking"}'
-
-# Create a table
-curl -X POST localhost:8080/api/workspaces/1/tables \
-  -H "Content-Type: application/json" \
-  -d '{"name":"tasks","context":"Task items"}'
-
-# Add a column
-curl -X POST localhost:8080/api/workspaces/1/tables/1/columns \
-  -H "Content-Type: application/json" \
-  -d '{"name":"status","type":"single-select","options":{"choices":["todo","in progress","done"]}}'
-
-# Insert a row
-curl -X POST localhost:8080/api/workspaces/1/tables/1/rows \
-  -H "Content-Type: application/json" \
-  -d '{"data":{"status":"todo","title":"Ship it"}}'
-```
-
-Full API docs at `http://localhost:8080/api/openapi.json` when the server is running.
-
-## MCP Server
-
-Every workspace can expose its schema and data as an MCP (Model Context Protocol) server, letting AI agents discover tables, query rows, and run CRUD operations through a standard JSON-RPC interface over Server-Sent Events.
-
-**Enable it** from the workspace's MCP tab in the UI (toggle the switch). The page shows ready-to-paste configuration for Claude, Zed, and other MCP clients.
-
-**Authentication:** MCP requests are authenticated with workspace API tokens. Create a token from workspace settings and pass it as a `Bearer` header.
-
-**Available tools:** `get_workspace`, `list_tables`, `create_table`, `update_table`, `delete_table`, `list_columns`, `create_column`, `update_column`, `delete_column`, `query_rows`, `get_row`, `create_row`, `patch_row`, `delete_row`, `bulk_patch_rows`, `list_referencing_rows`, `get_row_history`, `annotate_row`, `list_scripts`, `create_script`, `update_script`, `delete_script`, `list_script_executions`.
-
-## Tech stack
-
-| Layer    | Choice | Why                                           |
-|----------|--------|-----------------------------------------------|
-| Backend  | Go     | Fast, single binary, excellent HTTP tooling   |
-| Database | SQLite | Zero-setup, file-based, perfect for local use |
-| Frontend | Vue 3  | Reactive, lightweight, composable             |
+---
 
 ## Contributing & Community
 
-Contributions are welcome! Please check out [CONTRIBUTING.md](CONTRIBUTING.md) for local environment setup, testing guidelines, and workflow instructions.
+Contributions, feature ideas, and bug reports are welcome!
+- Check out [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and testing conventions.
+- Please review our [Code of Conduct](CODE_OF_CONDUCT.md) and [Security Policy](SECURITY.md).
 
-This project is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
-
-For security concerns, please refer to our [Security Policy](SECURITY.md).
+---
 
 ## License
 
-Degubase is open source software licensed under the [GNU General Public License v3.0](LICENSE).
+Degubase is open-source software licensed under the [GNU General Public License v3.0](LICENSE).

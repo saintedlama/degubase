@@ -93,6 +93,7 @@ Configure via `degubase.yaml` in the working directory, or environment variables
 | `data_dir`    | `DEGUBASE_DATA_DIR` | `data`    | Data & SQLite storage path     |
 | `jwt_secret`  | `DEGUBASE_JWT_SECRET`| *(auto)* | Secret for signing JWT tokens  |
 | `disable_auth`| `DEGUBASE_DISABLE_AUTH` | `false` | Skip login, auto-create admin  |
+| `automation.http.allowed_hosts` | `DEGUBASE_AUTOMATION_HTTP_ALLOWED_HOSTS` | *(none)* | Hosts (or `host:port`) that Lua scripts may always reach via `http.get`/`http.post`, bypassing SSRF IP checks |
 
 ## Showcase
 

@@ -23,15 +23,16 @@ import (
 var execCounter atomic.Int64
 
 type ScriptRunner struct {
-	ctx    context.Context // cancelled on server shutdown
-	auto   Store
-	recs   RowMutator
-	cols   ColumnLister
-	broker *events.Broker
+	ctx        context.Context // cancelled on server shutdown
+	auto       Store
+	recs       RowMutator
+	cols       ColumnLister
+	broker     *events.Broker
+	httpClient *http.Client
 }
 
-func NewScriptRunner(ctx context.Context, a Store, r RowMutator, c ColumnLister, b *events.Broker) *ScriptRunner {
-	return &ScriptRunner{ctx: ctx, auto: a, recs: r, cols: c, broker: b}
+func NewScriptRunner(ctx context.Context, a Store, r RowMutator, c ColumnLister, b *events.Broker, policy HTTPPolicy) *ScriptRunner {
+	return &ScriptRunner{ctx: ctx, auto: a, recs: r, cols: c, broker: b, httpClient: newSafeHTTPClient(policy)}
 }
 
 // Dispatch finds all enabled scripts matching table+event and fires each in
@@ -209,7 +210,6 @@ func (sr *ScriptRunner) run(ctx context.Context, ws *models.Workspace, table *mo
 	// ── http table ────────────────────────────────────────────────────────────
 	// http.get(url) / http.post(url, body) → {status, body} or nil, err
 	httpTbl := L.NewTable()
-	httpClient := &http.Client{Timeout: 10 * time.Second}
 
 	httpResponse := func(resp *http.Response, err error) int {
 		if err != nil {
@@ -226,12 +226,26 @@ func (sr *ScriptRunner) run(ctx context.Context, ws *models.Workspace, table *mo
 		return 1
 	}
 
+	doRequest := func(method, rawURL string, body io.Reader) (*http.Response, error) {
+		if err := validateRequestURL(rawURL); err != nil {
+			return nil, err
+		}
+		req, err := http.NewRequestWithContext(execCtx, method, rawURL, body)
+		if err != nil {
+			return nil, err
+		}
+		if method == http.MethodPost {
+			req.Header.Set("Content-Type", "application/json")
+		}
+		return sr.httpClient.Do(req)
+	}
+
 	L.SetField(httpTbl, "get", L.NewFunction(func(L *lua.LState) int {
-		resp, err := httpClient.Get(L.CheckString(1))
+		resp, err := doRequest(http.MethodGet, L.CheckString(1), nil)
 		return httpResponse(resp, err)
 	}))
 	L.SetField(httpTbl, "post", L.NewFunction(func(L *lua.LState) int {
-		resp, err := httpClient.Post(L.CheckString(1), "application/json", strings.NewReader(L.CheckString(2)))
+		resp, err := doRequest(http.MethodPost, L.CheckString(1), strings.NewReader(L.CheckString(2)))
 		return httpResponse(resp, err)
 	}))
 	L.SetGlobal("http", httpTbl)

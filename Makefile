@@ -16,7 +16,7 @@ lint:
 	@echo "── staticcheck ──"
 	go run honnef.co/go/tools/cmd/staticcheck@v0.8.1 ./...
 	@echo "── deadcode ──"
-	go run golang.org/x/tools/cmd/deadcode@v0.50.0 ./... 2>/dev/null || true
+	go run golang.org/x/tools/cmd/deadcode@v0.50.0 -test ./...
 	@echo "All checks passed."
 
 ## Regenerate OpenAPI spec from handler annotations

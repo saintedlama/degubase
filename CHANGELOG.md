@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/saintedlama/degubase/compare/v1.1.0...v1.2.0) (2026-09-20)
+
+
+### Features
+
+* improve templates and display of templates ([#9](https://github.com/saintedlama/degubase/issues/9)) ([7ef6608](https://github.com/saintedlama/degubase/commit/7ef6608d5d05019ec2201319a1c13ee76da86fc5))
+
+
+### Bug Fixes
+
+* **automation:** block SSRF in Lua http.get/http.post helpers ([#12](https://github.com/saintedlama/degubase/issues/12)) ([20cb60a](https://github.com/saintedlama/degubase/commit/20cb60a628949f6a46d75e8942890f0245d36498))
+* **records:** enforce table ownership on row CRUD endpoints ([#11](https://github.com/saintedlama/degubase/issues/11)) ([710b73f](https://github.com/saintedlama/degubase/commit/710b73fba4dfdfeab5e6d2691e80d58ab3f7ed0c))
+
 ## [1.1.0](https://github.com/saintedlama/degubase/compare/v1.0.0...v1.1.0) (2026-09-18)
 
 

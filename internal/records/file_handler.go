@@ -137,7 +137,7 @@ func (h *FileHandler) Upload(w http.ResponseWriter, r *http.Request) {
 		httplib.InternalErr(w, err)
 		return
 	}
-	if row == nil {
+	if row == nil || row.TableID != t.ID {
 		httplib.NotFound(w)
 		return
 	}

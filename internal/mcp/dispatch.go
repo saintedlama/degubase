@@ -448,6 +448,13 @@ func (h *Handler) toolDeleteRow(ctx context.Context, ws *models.Workspace, args 
 	if err != nil || t == nil {
 		return errResult("table not found: " + a.TableCode)
 	}
+	row, err := h.RowSvc.GetRow(ctx, t.ID, a.RowID)
+	if err != nil {
+		return errResult("get row: " + err.Error())
+	}
+	if row == nil {
+		return errResult(fmt.Sprintf("row not found: %d", a.RowID))
+	}
 	refs, err := h.Rows.FindRowLinkReferences(ctx, ws.ID, a.RowID)
 	if err != nil {
 		return errResult("check references: " + err.Error())
@@ -455,7 +462,7 @@ func (h *Handler) toolDeleteRow(ctx context.Context, ws *models.Workspace, args 
 	if len(refs) > 0 {
 		return errResult(fmt.Sprintf("row is referenced by %d other row(s) and cannot be deleted", len(refs)))
 	}
-	if err := h.Rows.DeleteRow(ctx, a.RowID); err != nil {
+	if err := h.RowSvc.DeleteRow(ctx, t.ID, a.RowID); err != nil {
 		return errResult("delete row: " + err.Error())
 	}
 	return textResult(map[string]bool{"deleted": true})
@@ -567,7 +574,11 @@ func (h *Handler) toolAnnotateRow(ctx context.Context, ws *models.Workspace, arg
 	if a.Text == "" {
 		return errResult("text is required")
 	}
-	entry, err := h.RowSvc.CreateAnnotation(ctx, a.RowID, a.Text)
+	t, err := h.Schema.GetTableByCode(ctx, ws.ID, a.TableCode)
+	if err != nil || t == nil {
+		return errResult("table not found: " + a.TableCode)
+	}
+	entry, err := h.RowSvc.CreateAnnotation(ctx, t.ID, a.RowID, a.Text)
 	if err != nil {
 		return errResult("annotate row: " + err.Error())
 	}

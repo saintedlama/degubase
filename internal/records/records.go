@@ -4,9 +4,14 @@ package records
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/saintedlama/degubase/internal/models"
 )
+
+// ErrRowNotFound is returned when a row does not exist or does not belong to
+// the requested table (preventing cross-table/cross-workspace access).
+var ErrRowNotFound = errors.New("row not found")
 
 // RowStore is the row persistence contract.
 type RowStore interface {
@@ -36,9 +41,11 @@ type RowStore interface {
 	ListReferencingRows(ctx context.Context, workspaceID, targetRowID int64, limit, offset int) ([]ReferencingRowRef, int64, error)
 	ListRowHistory(ctx context.Context, rowID int64) ([]models.RowHistory, error)
 	CreateAnnotation(ctx context.Context, rowID int64, text string) (*models.RowHistory, error)
-	UpdateAnnotation(ctx context.Context, historyID int64, text string) (*models.RowHistory, error)
-	DeleteAnnotation(ctx context.Context, historyID int64) error
-	UpdateChangeAnnotation(ctx context.Context, historyID int64, text string) (*models.RowHistory, error)
+	// UpdateAnnotation and DeleteAnnotation scope mutations by rowID so a
+	// history entry from another row cannot be modified.
+	UpdateAnnotation(ctx context.Context, rowID, historyID int64, text string) (*models.RowHistory, error)
+	DeleteAnnotation(ctx context.Context, rowID, historyID int64) error
+	UpdateChangeAnnotation(ctx context.Context, rowID, historyID int64, text string) (*models.RowHistory, error)
 }
 
 // Store is the records-scoped store.

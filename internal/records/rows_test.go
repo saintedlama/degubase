@@ -219,3 +219,45 @@ func TestAnnotations(t *testing.T) {
 		testutil.MustReq(t, srv, "POST", histBase, map[string]any{"annotation": ""}, http.StatusBadRequest)
 	})
 }
+
+func TestRowCrossTableAccessDenied(t *testing.T) {
+	srv := testutil.NewServer(t)
+
+	wb := testutil.MustReq(t, srv, "POST", "/api/workspaces/", map[string]any{"name": "idorws"}, http.StatusCreated)
+	wsCode := testutil.Field(t, testutil.Obj(t, wb), "code")
+
+	tbA := testutil.MustReq(t, srv, "POST", fmt.Sprintf("/api/workspaces/%s/tables/", wsCode), map[string]any{"name": "table_a"}, http.StatusCreated)
+	tblACode := testutil.Field(t, testutil.Obj(t, tbA), "code")
+
+	tbB := testutil.MustReq(t, srv, "POST", fmt.Sprintf("/api/workspaces/%s/tables/", wsCode), map[string]any{"name": "table_b"}, http.StatusCreated)
+	tblBCode := testutil.Field(t, testutil.Obj(t, tbB), "code")
+
+	cb := testutil.MustReq(t, srv, "POST", fmt.Sprintf("/api/workspaces/%s/tables/%s/columns/", wsCode, tblACode), map[string]any{"name": "title", "type": "text"}, http.StatusCreated)
+	colCode := testutil.Field(t, testutil.Obj(t, cb), "code")
+
+	rowsA := fmt.Sprintf("/api/workspaces/%s/tables/%s/rows/", wsCode, tblACode)
+	rb := testutil.MustReq(t, srv, "POST", rowsA, map[string]any{"data": map[string]any{colCode: "secret"}}, http.StatusCreated)
+	rowID := testutil.Obj(t, rb)["id"].(float64)
+
+	// Address the row that lives in table A through table B's route.
+	rowPathB := fmt.Sprintf("/api/workspaces/%s/tables/%s/rows/%.0f", wsCode, tblBCode, rowID)
+
+	t.Run("get", func(t *testing.T) {
+		testutil.MustReq(t, srv, "GET", rowPathB, nil, http.StatusNotFound)
+	})
+	t.Run("patch", func(t *testing.T) {
+		testutil.MustReq(t, srv, "PATCH", rowPathB, map[string]any{"data": map[string]any{colCode: "hacked"}}, http.StatusNotFound)
+	})
+	t.Run("delete", func(t *testing.T) {
+		testutil.MustReq(t, srv, "DELETE", rowPathB, nil, http.StatusNotFound)
+	})
+	t.Run("history", func(t *testing.T) {
+		testutil.MustReq(t, srv, "GET", rowPathB+"/history", nil, http.StatusNotFound)
+	})
+	t.Run("annotate", func(t *testing.T) {
+		testutil.MustReq(t, srv, "POST", rowPathB+"/history", map[string]any{"annotation": "nope"}, http.StatusNotFound)
+	})
+
+	// The row must remain intact in its own table.
+	testutil.MustReq(t, srv, "GET", fmt.Sprintf("%s%.0f", rowsA, rowID), nil, http.StatusOK)
+}

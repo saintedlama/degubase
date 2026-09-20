@@ -528,6 +528,10 @@ func (h *RowHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	row, revID, err := h.Svc.UpdateRow(r.Context(), t.ID, id, body.Data, r.Header.Get("X-Revision-Id"))
 	if err != nil {
+		if errors.Is(err, ErrRowNotFound) {
+			httplib.NotFound(w)
+			return
+		}
 		httplib.InternalErr(w, err)
 		return
 	}
@@ -570,7 +574,7 @@ func (h *RowHandler) Patch(w http.ResponseWriter, r *http.Request) {
 	}
 	row, revID, err := h.Svc.PatchRow(r.Context(), t.ID, id, body.Data, r.Header.Get("X-Revision-Id"))
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, ErrRowNotFound) || errors.Is(err, sql.ErrNoRows) {
 			httplib.NotFound(w)
 			return
 		}
@@ -784,6 +788,15 @@ func (h *RowHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	t := httplib.TableFromCtx(r)
+	row, err := h.Svc.GetRow(r.Context(), t.ID, id)
+	if err != nil {
+		httplib.InternalErr(w, err)
+		return
+	}
+	if row == nil {
+		httplib.NotFound(w)
+		return
+	}
 	if ws := httplib.WorkspaceFromCtx(r); ws != nil {
 		refs, err := h.Store.FindRowLinkReferences(r.Context(), ws.ID, id)
 		if err != nil {
@@ -832,6 +845,10 @@ func (h *RowHandler) History(w http.ResponseWriter, r *http.Request) {
 	t := httplib.TableFromCtx(r)
 	entries, err := h.Svc.ListRowHistory(r.Context(), t.ID, id)
 	if err != nil {
+		if errors.Is(err, ErrRowNotFound) {
+			httplib.NotFound(w)
+			return
+		}
 		httplib.InternalErr(w, err)
 		return
 	}
@@ -873,8 +890,13 @@ func (h *RowHandler) CreateAnnotation(w http.ResponseWriter, r *http.Request) {
 		httplib.BadRequest(w, "annotation text is required")
 		return
 	}
-	entry, err := h.Svc.CreateAnnotation(r.Context(), id, body.Annotation)
+	t := httplib.TableFromCtx(r)
+	entry, err := h.Svc.CreateAnnotation(r.Context(), t.ID, id, body.Annotation)
 	if err != nil {
+		if errors.Is(err, ErrRowNotFound) {
+			httplib.NotFound(w)
+			return
+		}
 		httplib.InternalErr(w, err)
 		return
 	}
@@ -897,6 +919,11 @@ func (h *RowHandler) CreateAnnotation(w http.ResponseWriter, r *http.Request) {
 // @Security    BearerAuth
 // @Router      /workspaces/{wsCode}/tables/{tableCode}/rows/{rowID}/history/{histID} [patch]
 func (h *RowHandler) UpdateHistoryAnnotation(w http.ResponseWriter, r *http.Request) {
+	rowID, err := strconv.ParseInt(chi.URLParam(r, "rowID"), 10, 64)
+	if err != nil {
+		httplib.BadRequest(w, "invalid row id")
+		return
+	}
 	histID, err := strconv.ParseInt(chi.URLParam(r, "histID"), 10, 64)
 	if err != nil {
 		httplib.BadRequest(w, "invalid history id")
@@ -907,10 +934,11 @@ func (h *RowHandler) UpdateHistoryAnnotation(w http.ResponseWriter, r *http.Requ
 		httplib.BadRequest(w, "invalid body")
 		return
 	}
+	t := httplib.TableFromCtx(r)
 	// Try annotation entry first; fall back to change entry.
-	entry, err := h.Svc.UpdateAnnotation(r.Context(), histID, body.Annotation)
-	if err != nil {
-		entry, err = h.Svc.UpdateChangeAnnotation(r.Context(), histID, body.Annotation)
+	entry, err := h.Svc.UpdateAnnotation(r.Context(), t.ID, rowID, histID, body.Annotation)
+	if err != nil && !errors.Is(err, ErrRowNotFound) {
+		entry, err = h.Svc.UpdateChangeAnnotation(r.Context(), t.ID, rowID, histID, body.Annotation)
 	}
 	if err != nil {
 		httplib.NotFound(w)
@@ -932,12 +960,18 @@ func (h *RowHandler) UpdateHistoryAnnotation(w http.ResponseWriter, r *http.Requ
 // @Security    BearerAuth
 // @Router      /workspaces/{wsCode}/tables/{tableCode}/rows/{rowID}/history/{histID} [delete]
 func (h *RowHandler) DeleteAnnotation(w http.ResponseWriter, r *http.Request) {
+	rowID, err := strconv.ParseInt(chi.URLParam(r, "rowID"), 10, 64)
+	if err != nil {
+		httplib.BadRequest(w, "invalid row id")
+		return
+	}
 	histID, err := strconv.ParseInt(chi.URLParam(r, "histID"), 10, 64)
 	if err != nil {
 		httplib.BadRequest(w, "invalid history id")
 		return
 	}
-	if err := h.Svc.DeleteAnnotation(r.Context(), histID); err != nil {
+	t := httplib.TableFromCtx(r)
+	if err := h.Svc.DeleteAnnotation(r.Context(), t.ID, rowID, histID); err != nil {
 		httplib.NotFound(w)
 		return
 	}

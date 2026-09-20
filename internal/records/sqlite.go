@@ -593,10 +593,10 @@ func (s *SQLite) CreateAnnotation(ctx context.Context, rowID int64, text string)
 	}, nil
 }
 
-func (s *SQLite) UpdateAnnotation(ctx context.Context, historyID int64, text string) (*models.RowHistory, error) {
+func (s *SQLite) UpdateAnnotation(ctx context.Context, rowID, historyID int64, text string) (*models.RowHistory, error) {
 	res, err := s.db.ExecContext(ctx,
-		`UPDATE row_history SET annotation = ? WHERE id = ? AND entry_type = 'annotation'`,
-		text, historyID)
+		`UPDATE row_history SET annotation = ? WHERE id = ? AND row_id = ? AND entry_type = 'annotation'`,
+		text, historyID, rowID)
 	if err != nil {
 		return nil, err
 	}
@@ -615,10 +615,10 @@ func (s *SQLite) UpdateAnnotation(ctx context.Context, historyID int64, text str
 	return &h, nil
 }
 
-func (s *SQLite) DeleteAnnotation(ctx context.Context, historyID int64) error {
+func (s *SQLite) DeleteAnnotation(ctx context.Context, rowID, historyID int64) error {
 	res, err := s.db.ExecContext(ctx,
-		`DELETE FROM row_history WHERE id = ? AND entry_type = 'annotation'`,
-		historyID)
+		`DELETE FROM row_history WHERE id = ? AND row_id = ? AND entry_type = 'annotation'`,
+		historyID, rowID)
 	if err != nil {
 		return err
 	}
@@ -628,10 +628,10 @@ func (s *SQLite) DeleteAnnotation(ctx context.Context, historyID int64) error {
 	return nil
 }
 
-func (s *SQLite) UpdateChangeAnnotation(ctx context.Context, historyID int64, text string) (*models.RowHistory, error) {
+func (s *SQLite) UpdateChangeAnnotation(ctx context.Context, rowID, historyID int64, text string) (*models.RowHistory, error) {
 	res, err := s.db.ExecContext(ctx,
-		`UPDATE row_history SET annotation = ? WHERE id = ? AND entry_type = 'change'`,
-		text, historyID)
+		`UPDATE row_history SET annotation = ? WHERE id = ? AND row_id = ? AND entry_type = 'change'`,
+		text, historyID, rowID)
 	if err != nil {
 		return nil, err
 	}

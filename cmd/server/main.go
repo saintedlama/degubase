@@ -27,6 +27,7 @@ import (
 
 	docs "github.com/saintedlama/degubase/docs"
 	"github.com/saintedlama/degubase/internal/api"
+	"github.com/saintedlama/degubase/internal/automation"
 	"github.com/saintedlama/degubase/internal/infrastructure/storage"
 	"github.com/saintedlama/degubase/internal/infrastructure/store"
 	"github.com/saintedlama/degubase/internal/jobs"
@@ -54,6 +55,7 @@ func main() {
 	viper.SetDefault("upload.image.thumbnail_width", 256)
 	viper.SetDefault("snapshots.max", snapshots.DefaultMaxSnapshots)
 	viper.SetDefault("snapshots.schedule", "0 2 * * *")
+	viper.SetDefault("automation.http.allowed_hosts", []string{})
 
 	if cfgFile := viper.GetString("config"); cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
@@ -135,6 +137,8 @@ func main() {
 	jobStore := jobs.NewSQLite(str.DB())
 	jobHandler := &jobs.Handler{Store: jobStore}
 
+	httpPolicy := automation.HTTPPolicy{AllowedHosts: viper.GetStringSlice("automation.http.allowed_hosts")}
+
 	// Scheduled snapshots with job run tracking.
 	if schedule := viper.GetString("snapshots.schedule"); schedule != "" {
 		s, err := gocron.NewScheduler()
@@ -153,7 +157,7 @@ func main() {
 		slog.Info("scheduled snapshots enabled", "schedule", schedule)
 	}
 
-	router := api.NewRouter(str.DB(), fileStorage, uploadCfg, "ui/dist", jwtSecret, disableAuth, snapHandler, jobHandler)
+	router := api.NewRouter(str.DB(), fileStorage, uploadCfg, "ui/dist", jwtSecret, disableAuth, snapHandler, jobHandler, httpPolicy)
 
 	addr := fmt.Sprintf("%s:%s", host, port)
 	slog.Info("degubase listening", "addr", addr)

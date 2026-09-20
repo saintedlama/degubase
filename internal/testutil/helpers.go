@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/saintedlama/degubase/internal/api"
+	"github.com/saintedlama/degubase/internal/automation"
 	"github.com/saintedlama/degubase/internal/infrastructure/storage"
 	"github.com/saintedlama/degubase/internal/infrastructure/store"
 	"github.com/saintedlama/degubase/internal/records"
@@ -29,7 +30,7 @@ func NewServer(t *testing.T) *httptest.Server {
 	if err != nil {
 		t.Fatalf("sqlite.New: %v", err)
 	}
-	srv := httptest.NewServer(api.NewRouter(st.DB(), nil, defaultUploadCfg, "", nil, true, nil, nil))
+	srv := httptest.NewServer(api.NewRouter(st.DB(), nil, defaultUploadCfg, "", nil, true, nil, nil, automation.HTTPPolicy{}))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -41,7 +42,7 @@ func NewServerAuth(t *testing.T) *httptest.Server {
 		t.Fatalf("sqlite.New: %v", err)
 	}
 	jwtSecret := []byte("test-secret-for-integration-tests-32b!")
-	srv := httptest.NewServer(api.NewRouter(st.DB(), nil, defaultUploadCfg, "", jwtSecret, false, nil, nil))
+	srv := httptest.NewServer(api.NewRouter(st.DB(), nil, defaultUploadCfg, "", jwtSecret, false, nil, nil, automation.HTTPPolicy{}))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -61,7 +62,7 @@ func NewServerWithStorage(t *testing.T) (*httptest.Server, *storage.Store) {
 	if err != nil {
 		t.Fatalf("storage.NewLocal: %v", err)
 	}
-	srv := httptest.NewServer(api.NewRouter(st.DB(), fs, defaultUploadCfg, "", nil, true, nil, nil))
+	srv := httptest.NewServer(api.NewRouter(st.DB(), fs, defaultUploadCfg, "", nil, true, nil, nil, automation.HTTPPolicy{}))
 	t.Cleanup(srv.Close)
 	return srv, fs
 }

@@ -70,7 +70,7 @@ func withTable(s schema.Store) func(http.Handler) http.Handler {
 	}
 }
 
-func NewRouter(db *sql.DB, fileStore storage.Storage, uploadCfg records.UploadConfig, uiDir string, jwtSecret []byte, disableAuth bool, snap *snapshots.Handler, jobs *jobs.Handler) http.Handler {
+func NewRouter(db *sql.DB, fileStore storage.Storage, uploadCfg records.UploadConfig, uiDir string, jwtSecret []byte, disableAuth bool, snap *snapshots.Handler, jobs *jobs.Handler, httpPolicy automation.HTTPPolicy) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -113,7 +113,7 @@ func NewRouter(db *sql.DB, fileStore storage.Storage, uploadCfg records.UploadCo
 	skl := &skills.SkillHandler{Store: sklStore, Tbls: schem, Rows: recs, Ident: ident, DisableAuth: disableAuth}
 
 	// Wire the script runner: dispatch Lua scripts on row events.
-	runner := automation.NewScriptRunner(context.Background(), auto, rowMutatorAdapter{s: recs, cols: schem}, schem, broker)
+	runner := automation.NewScriptRunner(context.Background(), auto, rowMutatorAdapter{s: recs, cols: schem}, schem, broker, httpPolicy)
 	go func() {
 		for ev := range broker.SubscribeAll() {
 			if strings.HasPrefix(ev.CommandSourceID, "script-") {

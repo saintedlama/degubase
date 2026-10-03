@@ -86,12 +86,6 @@ test.describe('Demo screenshots', () => {
     return `/workspaces/${ws.code}/tables/${t.code}/views/${viewCode}`
   }
 
-  test('01 home — six workspace cards', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-    await page.screenshot({ path: path.join(SHOTS, '01-home.png') })
-  })
-
   test('02 bookmarks gallery — links as cards', async ({ page }) => {
     await page.goto(viewUrl('Bookmarks', 'Links', 'card'))
     await waitForView(page, 'card')

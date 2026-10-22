@@ -253,7 +253,7 @@ func TestScriptRunnerExecutionFeatures(t *testing.T) {
 		runner := NewScriptRunner(ctx, auto, recs, &mockColLister{cols: cols}, events.NewBroker(), policy)
 
 		script := &models.Script{
-			ID:   1,
+			ID: 1,
 			Code: `
 print("arg1", "arg2")
 log.info("info text")
@@ -482,5 +482,3 @@ assert(errBlocked ~= nil, "expected error on blocked SSRF")
 		}
 	})
 }
-
-

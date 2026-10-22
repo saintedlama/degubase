@@ -47,3 +47,4 @@ coverage.svg
 coverage/
 test-results/
 .invincible.port
+ingest-metriker.mjs

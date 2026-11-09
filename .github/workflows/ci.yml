@@ -20,17 +20,16 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6.1.0
+      - name: Setup pnpm and Node.js
+        uses: pnpm/setup@v3
         with:
           version: 11.0.9
-
-      - name: Set up Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: pnpm
-          cache-dependency-path: ui/pnpm-lock.yaml
+          runtime: node@22
+          cache: true
+          cache-dependency-path: |
+            ui/pnpm-lock.yaml
+            e2e/pnpm-lock.yaml
+          install: false
 
       - name: Check formatting
         run: |
